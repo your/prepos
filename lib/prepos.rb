@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 ENV['OCTOKIT_SILENT'] = 'true' # API reviews are still "preview" as of 05-21-17.
 require 'octokit'
 require 'optparse'
