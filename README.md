@@ -2,14 +2,16 @@
 
 ## What is this?
 
-A simple command-line Ruby script that outputs a very basic JSON that tells you if your team's PRs are ready for review/merge.
+A simple command-line Ruby script that outputs a very essential JSON that tells you if your team's PRs are ready for review/merge.
 
 It can be put behind a proxy and cached in order to be consumed by an external service (bot?).
 
 ## Usage:
 
+`bundle install`, then:
+
 ```
-Usage: prepos.rb [options]
+Usage: prepos [options]
     -t, --gh-token TOKEN             Set Github token
     -a, --gh-author AUTHOR           Set Github author
     -r COMMA,SEPARATED,REPOS,        Set Github author's repos
@@ -21,7 +23,7 @@ Usage: prepos.rb [options]
 Example:
 
 ```
-prepos \
+bin/prepos \
   --gh-token TOKEN \
   --gh-owner author \
   --gh-repos repo1,repo2,repo3 \

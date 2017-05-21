@@ -2,10 +2,9 @@ ENV['OCTOKIT_SILENT'] = 'true' # API reviews are still "preview" as of 05-21-17.
 require 'octokit'
 require 'optparse'
 require 'json'
-require 'pry'
 
 #
-# prepos \
+# ruby prepos.rb \
 #   --gh-token TOKEN \
 #   --gh-owner author \
 #   --gh-repos repo1,repo2,repo3
