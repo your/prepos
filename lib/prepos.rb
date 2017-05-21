@@ -119,6 +119,8 @@ module PRepos
   end
   private_constant :PRdata
 
+  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def self.run
     options = {}
     optparse = OptionParser.new do |opts|
@@ -179,6 +181,8 @@ module PRepos
       end
     end
   end
+  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
   def self.generate_hash(token, author, repos)
     Octokit.auto_paginate = true # TODO?: handle rate limiting and throttling.
