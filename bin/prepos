@@ -10,4 +10,6 @@ Bundler.require
 
 script_location = File.expand_path('../../lib/prepos.rb', real_path)
 
-system("bundle exec ruby #{script_location} #{ARGV.join(' ')}")
+require_relative(script_location)
+
+PRepos.run

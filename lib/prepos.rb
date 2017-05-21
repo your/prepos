@@ -119,78 +119,90 @@ module PRepos
   end
   private_constant :PRdata
 
-  options = {}
-  optparse = OptionParser.new do |opts|
-    opts.banner = 'Usage: prepos.rb [options]'
+  def self.run
+    options = {}
+    optparse = OptionParser.new do |opts|
+      opts.banner = 'Usage: prepos [options]'
 
-    opts.on('-t', '--gh-token TOKEN', 'Set Github token') do |c|
-      options[:token] = c
-    end
-
-    opts.on('-a', '--gh-author AUTHOR', 'Set Github author') do |c|
-      options[:author] = c
-    end
-
-    opts.on(
-      '-r',
-      '--gh-repos COMMA,SEPARATED,REPOS',
-      'Set Github author\'s repos'
-    ) do |c|
-      options[:repos] = c
-    end
-
-    opts.on('-p', '--prettify', 'Prettify JSON output (console only)') do |c|
-      options[:prettify] = c
-    end
-
-    opts.on('-h', '--help', 'Print this help') do |c|
-      options[:help] = c
-    end
-  end
-
-  optparse.parse!
-
-  if options[:help]
-    puts optparse
-    exit 0
-  end
-
-  token = options[:token]
-  author = options[:author]
-  repos = options[:repos].split(',') if options[:repos]
-
-  if token.nil? || author.nil? || !repos.to_a.any?
-    raise OptionParser::MissingArgument
-  end
-
-  github = Octokit::Client.new(access_token: token)
-  Octokit.auto_paginate = true # TODO?: handle rate limiting and throttling.
-
-  hash = {
-    pulls: repos.flat_map do |repo|
-      repo = "#{author}/#{repo}"
-      github.issues(repo).map do |issue|
-        if issue[:pull_request] && # Not all issues are PRs.
-           (issue[:labels].map(&:name) & SKIP_LABELS).empty?
-          PRdata.from(github, issue, repo)
-        end
-      end.compact
-    end.reject(&:empty?)
-  }
-
-rescue OptionParser::MissingArgument
-  hash = { error: 'Invalid argument(s), please use prepos --help.' }
-rescue Faraday::ClientError, Octokit::ClientError => e
-  hash = { error: e.message }
-ensure
-  unless options[:help]
-    puts(
-      if options[:prettify]
-        JSON.pretty_generate(hash)
-      else
-        hash.to_json
+      opts.on('-t', '--gh-token TOKEN', 'Set Github token') do |c|
+        options[:token] = c
       end
+
+      opts.on('-a', '--gh-author AUTHOR', 'Set Github author') do |c|
+        options[:author] = c
+      end
+
+      opts.on(
+        '-r',
+        '--gh-repos COMMA,SEPARATED,REPOS',
+        'Set Github author\'s repos'
+      ) do |c|
+        options[:repos] = c
+      end
+
+      opts.on('-p', '--prettify', 'Prettify JSON output (console only)') do |c|
+        options[:prettify] = c
+      end
+
+      opts.on('-h', '--help', 'Print this help') do |c|
+        options[:help] = c
+      end
+    end
+
+    optparse.parse!(ARGV)
+
+    if options[:help]
+      $stdout.puts optparse
+      exit 0
+    end
+
+    token = options[:token]
+    author = options[:author]
+    repos = options[:repos].split(',') if options[:repos]
+
+    unless token && author && repos.to_a.any?
+      raise OptionParser::MissingArgument
+    end
+
+    hash = generate_hash(token, author, repos)
+
+  rescue OptionParser::MissingArgument
+    hash = { error: 'Invalid argument(s), please use prepos --help.' }
+  rescue Faraday::ClientError, Octokit::Error => e
+    hash = { error: e.message }
+  ensure
+    unless options[:help]
+      if options[:prettify]
+        $stdout.puts(JSON.pretty_generate(hash))
+      else
+        $stdout.print(hash.to_json)
+      end
+    end
+  end
+
+  def self.generate_hash(token, author, repos)
+    Octokit.auto_paginate = true # TODO?: handle rate limiting and throttling.
+    github = Octokit::Client.new(access_token: token)
+
+    compile_reponse(
+      github,
+      author,
+      repos
     )
+  end
+
+  def self.compile_reponse(github, author, repos)
+    {
+      pulls: repos.flat_map do |repo|
+        repo = "#{author}/#{repo}"
+        github.issues(repo).map do |issue|
+          if issue[:pull_request] && # Not all issues are PRs.
+             (issue[:labels].map(&:name) & SKIP_LABELS).empty?
+            PRdata.from(github, issue, repo)
+          end
+        end.compact
+      end.reject(&:empty?)
+    }
   end
 end
 
