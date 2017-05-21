@@ -122,19 +122,11 @@ module PRepos
   optparse = OptionParser.new do |opts|
     opts.banner = 'Usage: prepos.rb [options]'
 
-    opts.on(
-      '-t',
-      '--gh-token TOKEN',
-      'Set Github token'
-    ) do |c|
+    opts.on('-t', '--gh-token TOKEN', 'Set Github token') do |c|
       options[:token] = c
     end
 
-    opts.on(
-      '-a',
-      '--gh-author AUTHOR',
-      'Set Github author'
-    ) do |c|
+    opts.on('-a', '--gh-author AUTHOR', 'Set Github author') do |c|
       options[:author] = c
     end
 
@@ -144,6 +136,10 @@ module PRepos
       'Set Github author\'s repos'
     ) do |c|
       options[:repos] = c
+    end
+
+    opts.on('-p', '--prettify', 'Prettify JSON output (console only)') do |c|
+      options[:prettify] = c
     end
 
     opts.on('-h', '--help', 'Print this help') do |c|
@@ -169,7 +165,7 @@ module PRepos
   github = Octokit::Client.new(access_token: token)
   Octokit.auto_paginate = true # TODO?: handle rate limiting and throttling.
 
-  response = {
+  hash = {
     prs: repos.flat_map do |repo|
       repo = "#{author}/#{repo}"
       github.issues(repo).map do |issue|
@@ -182,11 +178,19 @@ module PRepos
   }
 
 rescue OptionParser::MissingArgument
-  response = { error: 'Invalid argument(s), please use prepos --help.' }
+  hash = { error: 'Invalid argument(s), please use prepos --help.' }
 rescue Faraday::ClientError, Octokit::ClientError => e
-  response = { error: e.message }
+  hash = { error: e.message }
 ensure
-  puts JSON.pretty_generate(response) unless options[:help]
+  unless options[:help]
+    puts(
+      if options[:prettify]
+        JSON.pretty_generate(hash)
+      else
+        hash.to_json
+      end
+    )
+  end
 end
 
 # 011101000110100100100000011000010101101011011110010000001110100

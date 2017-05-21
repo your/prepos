@@ -8,22 +8,24 @@ It can be put behind a proxy and cached in order to be consumed by an external s
 
 ## Usage:
 
-```bash
+```
 Usage: prepos.rb [options]
     -t, --gh-token TOKEN             Set Github token
     -a, --gh-author AUTHOR           Set Github author
-    -r COMMA,SEPARATED,REPOS,        Set Github author\'s repos
+    -r COMMA,SEPARATED,REPOS,        Set Github author's repos
         --gh-repos
+    -p, --prettify                   Prettify JSON output (console only)
     -h, --help                       Print this help
 ```
 
 Example:
 
-```bash
+```
 prepos \
   --gh-token TOKEN \
   --gh-owner author \
-  --gh-repos repo1,repo2,repo3
+  --gh-repos repo1,repo2,repo3 \
+  --prettify
 ```
 
 Output:
@@ -58,6 +60,8 @@ OR:
   "error": "error description"
 }
 ```
+
+Note: you are advised to not use `--prettify` when calling the script for consumption from an external service (it would add unwanted spaces that are not exactly easy to parse from any standard JSON library).
 
 ## LICENSE
 The MIT License (MIT)
