@@ -11,6 +11,7 @@ group :development do
 end
 
 group :test do
+  gem 'rake', '~> 11.2'
   gem 'rspec', '~> 3.6'
   gem 'vcr', '~> 3.0', require: false
   gem 'webmock', '~> 3.0', require: false
