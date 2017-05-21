@@ -165,7 +165,7 @@ module PRepos
   Octokit.auto_paginate = true # TODO?: handle rate limiting and throttling.
 
   hash = {
-    prs: repos.flat_map do |repo|
+    pulls: repos.flat_map do |repo|
       repo = "#{author}/#{repo}"
       github.issues(repo).map do |issue|
         if issue[:pull_request] && # Not all issues are PRs.

@@ -34,7 +34,7 @@ Output:
 
 ```json
 {
-  "prs": [
+  "pulls": [
     {
       "repo": "author/repo1",
       "number": 1,
