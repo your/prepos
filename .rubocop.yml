@@ -1,6 +1,7 @@
 AllCops:
   Exclude:
     - spec/**/*
+    - vendor/**/*
 
 Metrics/MethodLength:
   CountComments: false
