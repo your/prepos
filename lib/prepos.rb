@@ -39,6 +39,7 @@ require 'json'
 module PRepos
   MIN_APPROVALS = 2
   SKIP_LABELS = %w(wip).freeze
+  private_constant :MIN_APPROVALS, :SKIP_LABELS
 
   # Provide aggregated data from a PR:
   #
@@ -116,6 +117,7 @@ module PRepos
         .each_with_object(Hash.new(0)) { |state, counts| counts[state] += 1 }
     end
   end
+  private_constant :PRdata
 
   options = {}
   optparse = OptionParser.new do |opts|
