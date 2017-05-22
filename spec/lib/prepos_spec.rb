@@ -18,11 +18,11 @@ RSpec.describe PRepos do
   end
 
   before do
-    stub_const('ARGV', options)
+    stub_const('ARGV', options.split)
   end
 
   context 'without any option' do
-    let(:options) { [] }
+    let(:options) { '' }
     let(:expected_output) { '{"error":"Invalid argument(s), please use prepos --help."}' }
 
     it { expect { subject }.to output(expected_output).to_stdout }
@@ -41,7 +41,7 @@ RSpec.describe PRepos do
         end
       end
 
-      let(:options) { ['-a', 'your', '-r', '_repo', '-t', 'VALID_TOKEN'] }
+      let(:options) { '-a your -r _repo -t VALID_TOKEN' }
       let(:expected_output) do
 '{"pulls":[{"repo":"your/_repo","number":1,"title":"Test PR","body":"Nothing special.\n","approved":false,"mergeable":true}]}'
       end
@@ -56,9 +56,24 @@ RSpec.describe PRepos do
         end
       end
 
-      let(:options) { ['-a', 'your', '-r', '_repo', '-t', 'INVALID_TOKEN'] }
+      let(:options) { '-a your -r _repo -t INVALID_TOKEN' }
       let(:expected_output) do
 '{"error":"GET https://api.github.com/repos/your/_repo/issues?per_page=100: 401 - Bad credentials // See: https://developer.github.com/v3"}'
+      end
+
+      it { expect(@result).to eq(expected_output) }
+    end
+
+    context 'with -m option' do
+      before do
+        VCR.use_cassette('github_rules_min_approvals_1') do
+          @result = subject.to_json
+        end
+      end
+
+      let(:options) { '-a your -r _repo -t TOKEN -m 1' }
+      let(:expected_output) do
+'{"pulls":[{"repo":"your/_repo","number":1,"title":"Test PR","body":"Nothing special.\n","approved":true,"mergeable":true}]}'
       end
 
       it { expect(@result).to eq(expected_output) }
@@ -66,7 +81,7 @@ RSpec.describe PRepos do
   end
 
   context 'with option -h' do
-    let(:options) { ['-h'] }
+    let(:options) { '-h' }
     let(:expected_output) do
       <<~EOS
       Usage: prepos [options]

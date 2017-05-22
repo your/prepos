@@ -6,3 +6,7 @@ AllCops:
 Metrics/MethodLength:
   CountComments: false
   Max: 15
+
+Style/FrozenStringLiteralComment:
+  Exclude:
+    - bin/prepos
