@@ -8,7 +8,9 @@ require 'json'
 # ruby prepos.rb \
 #   --gh-token TOKEN \
 #   --gh-owner author \
-#   --gh-repos repo1,repo2,repo3
+#   --gh-repos repo1,repo2,repo3 \
+#   --min-approvals 1 \
+#   --prettify
 #
 # {
 #   "prs": [
@@ -56,9 +58,10 @@ module PRepos
   class PRdata
     attr_reader :number, :title, :body, :approved, :mergeable
 
-    def initialize(github, issue, repo)
+    def initialize(github, issue, repo, rules)
       @github = github
       @repo = repo
+      @rules = rules
       @number, @title, @body = issue.to_hash.fetch_values(
         :number,
         :title,
@@ -68,8 +71,8 @@ module PRepos
       @mergeable = mergeable?
     end
 
-    def self.from(github, issue, repo)
-      new(github, issue, repo).info
+    def self.from(github, issue, repo, rules)
+      new(github, issue, repo, rules).info
     end
 
     def info
@@ -85,7 +88,7 @@ module PRepos
 
     private
 
-    attr_reader :github, :repo, :error
+    attr_reader :github, :repo, :error, :rules
 
     def reviews
       @_reviews ||= github.pull_request_reviews(repo, number)
@@ -99,7 +102,7 @@ module PRepos
       states_with_count = states_with_count_from_reviews(reviews)
 
       states_with_count.fetch('CHANGES_REQUESTED', 0).zero? &&
-        states_with_count.fetch('APPROVED', 0) >= MIN_APPROVALS
+        states_with_count.fetch('APPROVED', 0) >= rules[:min_approvals]
     end
 
     def mergeable?
@@ -120,7 +123,7 @@ module PRepos
   end
   private_constant :PRdata
 
-  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  # rubocop:disable Metrics/AbcSize, Metrics/BlockLength, Metrics/MethodLength
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def self.run
     options = {}
@@ -143,6 +146,14 @@ module PRepos
         options[:repos] = c
       end
 
+      opts.on(
+        '-m',
+        '--min-approvals INTEGER',
+        'Set minimum approvals required (default: 2)'
+      ) do |c|
+        options[:min_approvals] = c
+      end
+
       opts.on('-p', '--prettify', 'Prettify JSON output (console only)') do |c|
         options[:prettify] = c
       end
@@ -162,12 +173,13 @@ module PRepos
     token = options[:token]
     author = options[:author]
     repos = options[:repos].split(',') if options[:repos]
+    rules = { min_approvals: (options[:min_approvals] || MIN_APPROVALS).to_i }
 
     unless token && author && repos.to_a.any?
       raise OptionParser::MissingArgument
     end
 
-    hash = generate_hash(token, author, repos)
+    hash = generate_hash(token, author, repos, rules)
 
   rescue OptionParser::MissingArgument
     hash = { error: 'Invalid argument(s), please use prepos --help.' }
@@ -182,28 +194,29 @@ module PRepos
       end
     end
   end
-  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+  # rubocop:enable Metrics/AbcSize, Metrics/BlockLength, Metrics/MethodLength
   # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
-  def self.generate_hash(token, author, repos)
+  def self.generate_hash(token, author, repos, rules)
     Octokit.auto_paginate = true # TODO?: handle rate limiting and throttling.
     github = Octokit::Client.new(access_token: token)
 
     compile_reponse(
       github,
       author,
-      repos
+      repos,
+      rules
     )
   end
 
-  def self.compile_reponse(github, author, repos)
+  def self.compile_reponse(github, author, repos, rules)
     {
       pulls: repos.flat_map do |repo|
         repo = "#{author}/#{repo}"
         github.issues(repo).map do |issue|
           if issue[:pull_request] && # Not all issues are PRs.
              (issue[:labels].map(&:name) & SKIP_LABELS).empty?
-            PRdata.from(github, issue, repo)
+            PRdata.from(github, issue, repo, rules)
           end
         end.compact
       end.reject(&:empty?)

@@ -16,6 +16,7 @@ Usage: prepos [options]
     -a, --gh-author AUTHOR           Set Github author
     -r COMMA,SEPARATED,REPOS,        Set Github author's repos
         --gh-repos
+    -m, --min-approvals INTEGER      Set minimum approvals required (default: 2)
     -p, --prettify                   Prettify JSON output (console only)
     -h, --help                       Print this help
 ```
@@ -27,6 +28,7 @@ bin/prepos \
   --gh-token TOKEN \
   --gh-owner author \
   --gh-repos repo1,repo2,repo3 \
+  --min-approvals 1 \
   --prettify
 ```
 
@@ -40,7 +42,7 @@ Output:
       "number": 1,
       "title": "Test PR",
       "body": "Nothing special.\n",
-      "approved": false,
+      "approved": true,
       "mergeable": true
     },
     {
