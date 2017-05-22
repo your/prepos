@@ -199,7 +199,7 @@ module PRepos
 
   rescue OptionParser::MissingArgument
     hash = { error: 'Invalid argument(s), please use prepos --help.' }
-  rescue Faraday::ClientError, Octokit::Error => e
+  rescue Faraday::ClientError, Octokit::Error, Octokit::InvalidRepository => e
     hash = { error: e.message }
   ensure
     unless options[:help]

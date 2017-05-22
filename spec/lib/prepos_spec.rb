@@ -43,6 +43,21 @@ RSpec.describe PRepos do
       allow($stdout).to receive(:print)
     end
 
+    context 'with invalid credentials' do
+      before do
+        VCR.use_cassette('github_invalid_credentials') do
+          @result = subject.to_json
+        end
+      end
+
+      let(:options) { '-a your -r _repo -t INVALID_TOKEN' }
+      let(:expected_output) do
+'{"error":"GET https://api.github.com/repos/your/_repo/issues?per_page=100: 401 - Bad credentials // See: https://developer.github.com/v3"}'
+      end
+
+      it { expect(@result).to eq(expected_output) }
+    end
+
     context 'with valid credentials' do
       before do
         VCR.use_cassette('github_valid_credentials') do
@@ -58,19 +73,13 @@ RSpec.describe PRepos do
       it { expect(@result).to eq(expected_output) }
     end
 
-    context 'with invalid credentials' do
-      before do
-        VCR.use_cassette('github_invalid_credentials') do
-          @result = subject.to_json
-        end
-      end
-
-      let(:options) { '-a your -r _repo -t INVALID_TOKEN' }
+    context 'with invalid repository' do
+      let(:options) { '-a your -r _repo/wrong_format -t VALID_TOKEN' }
       let(:expected_output) do
-'{"error":"GET https://api.github.com/repos/your/_repo/issues?per_page=100: 401 - Bad credentials // See: https://developer.github.com/v3"}'
+'{"error":"Invalid Repository. Use user/repo format."}'
       end
 
-      it { expect(@result).to eq(expected_output) }
+      it { expect { subject }.to output(expected_output).to_stdout }
     end
 
     context 'with -m option' do
