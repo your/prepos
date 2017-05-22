@@ -1,0 +1,81 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.github.com/repos/your/_repo/issues?per_page=100
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - Octokit Ruby Gem 4.7.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - token TOKEN
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - GitHub.com
+      Date:
+      - Mon, 22 May 2017 00:51:39 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Status:
+      - 200 OK
+      X-Ratelimit-Limit:
+      - '5000'
+      X-Ratelimit-Remaining:
+      - '4946'
+      X-Ratelimit-Reset:
+      - '1495416588'
+      Cache-Control:
+      - private, max-age=60, s-maxage=60
+      Vary:
+      - Accept, Authorization, Cookie, X-GitHub-OTP
+      - Accept-Encoding
+      Etag:
+      - W/"5bf3b379171a37eedfcaaf1e43c6cf48"
+      X-Oauth-Scopes:
+      - admin:gpg_key, admin:org, admin:org_hook, admin:public_key, admin:repo_hook,
+        delete_repo, gist, notifications, repo, user
+      X-Accepted-Oauth-Scopes:
+      - repo
+      X-Github-Media-Type:
+      - github.v3; format=json
+      Access-Control-Expose-Headers:
+      - ETag, Link, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset,
+        X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval
+      Access-Control-Allow-Origin:
+      - "*"
+      Content-Security-Policy:
+      - default-src 'none'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Served-By:
+      - e14705a23c085afeff5e104b1fc3922a
+      X-Github-Request-Id:
+      - 28FE:15876:2802094:2F9C1C1:5922361A
+    body:
+      encoding: ASCII-8BIT
+      string: '[{"url":"https://api.github.com/repos/your/_repo/issues/1","repository_url":"https://api.github.com/repos/your/_repo","labels_url":"https://api.github.com/repos/your/_repo/issues/1/labels{/name}","comments_url":"https://api.github.com/repos/your/_repo/issues/1/comments","events_url":"https://api.github.com/repos/your/_repo/issues/1/events","html_url":"https://github.com/your/_repo/pull/1","id":178928297,"number":1,"title":"Test
+        PR","user":{"login":"your","id":9043263,"avatar_url":"https://avatars2.githubusercontent.com/u/9043263?v=3","gravatar_id":"","url":"https://api.github.com/users/your","html_url":"https://github.com/your","followers_url":"https://api.github.com/users/your/followers","following_url":"https://api.github.com/users/your/following{/other_user}","gists_url":"https://api.github.com/users/your/gists{/gist_id}","starred_url":"https://api.github.com/users/your/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/your/subscriptions","organizations_url":"https://api.github.com/users/your/orgs","repos_url":"https://api.github.com/users/your/repos","events_url":"https://api.github.com/users/your/events{/privacy}","received_events_url":"https://api.github.com/users/your/received_events","type":"User","site_admin":false},"labels":[{"id":448417521,"url":"https://api.github.com/repos/your/_repo/labels/bug","name":"bug","color":"ee0701","default":true}],"state":"open","locked":false,"assignee":null,"assignees":[],"milestone":null,"comments":1,"created_at":"2016-09-23T17:11:27Z","updated_at":"2017-05-21T19:19:13Z","closed_at":null,"pull_request":{"url":"https://api.github.com/repos/your/_repo/pulls/1","html_url":"https://github.com/your/_repo/pull/1","diff_url":"https://github.com/your/_repo/pull/1.diff","patch_url":"https://github.com/your/_repo/pull/1.patch"},"body":"Nothing
+        special.\n"}]'
+    http_version:
+  recorded_at: Mon, 22 May 2017 00:51:39 GMT
+recorded_with: VCR 3.0.3

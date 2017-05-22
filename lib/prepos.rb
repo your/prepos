@@ -10,6 +10,7 @@ require 'json'
 #   --gh-owner author \
 #   --gh-repos repo1,repo2,repo3 \
 #   --min-approvals 1 \
+#   --skip-labels bug,wontfix \
 #   --prettify
 #
 # {
@@ -154,6 +155,14 @@ module PRepos
         options[:min_approvals] = c
       end
 
+      opts.on(
+        '-s',
+        '--skip-labels COMMA,SEPARATED,LABELS',
+        'Set labels to skip PRs with (default: \'wip\')'
+      ) do |c|
+        options[:skip_labels] = c
+      end
+
       opts.on('-p', '--prettify', 'Prettify JSON output (console only)') do |c|
         options[:prettify] = c
       end
@@ -167,13 +176,20 @@ module PRepos
 
     if options[:help]
       $stdout.puts optparse
-      exit 0
+      return
     end
 
     token = options[:token]
     author = options[:author]
     repos = options[:repos].split(',') if options[:repos]
-    rules = { min_approvals: (options[:min_approvals] || MIN_APPROVALS).to_i }
+    rules = {
+      min_approvals: (options[:min_approvals] || MIN_APPROVALS).to_i,
+      skip_labels: if options[:skip_labels]
+                     options[:skip_labels].split(',')
+                   else
+                     SKIP_LABELS
+                   end
+    }
 
     unless token && author && repos.to_a.any?
       raise OptionParser::MissingArgument
@@ -215,7 +231,7 @@ module PRepos
         repo = "#{author}/#{repo}"
         github.issues(repo).map do |issue|
           if issue[:pull_request] && # Not all issues are PRs.
-             (issue[:labels].map(&:name) & SKIP_LABELS).empty?
+             (issue[:labels].map(&:name) & rules[:skip_labels]).empty?
             PRdata.from(github, issue, repo, rules)
           end
         end.compact

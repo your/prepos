@@ -17,6 +17,8 @@ Usage: prepos [options]
     -r COMMA,SEPARATED,REPOS,        Set Github author's repos
         --gh-repos
     -m, --min-approvals INTEGER      Set minimum approvals required (default: 2)
+    -s COMMA,SEPARATED,LABELS,       Set labels to skip PRs with (default: 'wip')
+        --skip-labels
     -p, --prettify                   Prettify JSON output (console only)
     -h, --help                       Print this help
 ```

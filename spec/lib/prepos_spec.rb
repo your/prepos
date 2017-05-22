@@ -6,17 +6,6 @@ require_relative '../../lib/prepos.rb'
 RSpec.describe PRepos do
   subject { described_class.run }
 
-  let(:default_out) do <<~EOS
-    Usage: prepos [options]
-        -t, --gh-token TOKEN             Set Github token
-        -a, --gh-author AUTHOR           Set Github author
-        -r COMMA,SEPARATED,REPOS,        Set Github author's repos
-            --gh-repos
-        -p, --prettify                   Prettify JSON output (console only)
-        -h, --help                       Print this help
-    EOS
-  end
-
   before do
     stub_const('ARGV', options.split)
   end
@@ -24,6 +13,26 @@ RSpec.describe PRepos do
   context 'without any option' do
     let(:options) { '' }
     let(:expected_output) { '{"error":"Invalid argument(s), please use prepos --help."}' }
+
+    it { expect { subject }.to output(expected_output).to_stdout }
+  end
+
+  context 'with option -h' do
+    let(:options) { '-h' }
+    let(:expected_output) do
+      <<~EOS
+      Usage: prepos [options]
+          -t, --gh-token TOKEN             Set Github token
+          -a, --gh-author AUTHOR           Set Github author
+          -r COMMA,SEPARATED,REPOS,        Set Github author's repos
+              --gh-repos
+          -m, --min-approvals INTEGER      Set minimum approvals required (default: 2)
+          -s COMMA,SEPARATED,LABELS,       Set labels to skip PRs with (default: 'wip')
+              --skip-labels
+          -p, --prettify                   Prettify JSON output (console only)
+          -h, --help                       Print this help
+      EOS
+    end
 
     it { expect { subject }.to output(expected_output).to_stdout }
   end
@@ -78,22 +87,20 @@ RSpec.describe PRepos do
 
       it { expect(@result).to eq(expected_output) }
     end
-  end
 
-  context 'with option -h' do
-    let(:options) { '-h' }
-    let(:expected_output) do
-      <<~EOS
-      Usage: prepos [options]
-          -t, --gh-token TOKEN             Set Github token
-          -a, --gh-author AUTHOR           Set Github author
-          -r COMMA,SEPARATED,REPOS,        Set Github author's repos
-              --gh-repos
-          -p, --prettify                   Prettify JSON output (console only)
-          -h, --help                       Print this help
-      EOS
+    context 'with -s option' do
+      before do
+        VCR.use_cassette('github_rules_skip_labels_1') do
+          @result = subject.to_json
+        end
+      end
+
+      let(:options) { '-a your -r _repo -t TOKEN -s bug,wontfix' }
+      let(:expected_output) do
+'{"pulls":[]}'
+      end
+
+      it { expect(@result).to eq(expected_output) }
     end
-
-    it { expect { subject }.to output(expected_output).to_stdout }
   end
 end
