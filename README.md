@@ -6,6 +6,18 @@ A simple command-line Ruby script that outputs a very essential JSON that tells 
 
 It can be put behind a proxy and cached in order to be consumed by an external service (bot?).
 
+## Ok, but why?
+
+Github *sllooowwllyyyyyy.....* released their Pull Request Reviews API, which are still not exactly "production ready" (as of 22 May 2017).
+
+This made them almost incomplete/unreliable to build any internal tool that could help taking track of the PRs that can be reviewed, approved and merged, in an automated way.
+
+Once, you could have just counted the number of "LGTM" comments on a PR... and that was it.
+
+The Pull Request Reviews functionality is changing the review process (for good!), and we all love it. <3
+
+**Long story short: This script is an attempt at providing you with an "approved" value on the summary of every PR you want to take track of because this functionality is so WOW that we need to use it now!**
+
 ## Usage:
 
 `bundle install`, then:
